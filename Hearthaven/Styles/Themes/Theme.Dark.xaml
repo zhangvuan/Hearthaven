@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════ 暗夜深色主题：配色调色板 ═══════════════ -->
+    <!--
+        设计理念：深蓝黑色调，降低眼部疲劳
+        背景不取纯黑 #000000，用深蓝黑保留层次感
+        文字不取纯白，用暖灰白保持可读性
+    -->
+
+    <!-- 背景 — 由浅到深三层递进 -->
+    <SolidColorBrush x:Key="BrushBg" Color="#1C1C2E" />
+    <SolidColorBrush x:Key="BrushSidebar" Color="#151526" />
+    <SolidColorBrush x:Key="BrushChatBg" Color="#111121" />
+    <SolidColorBrush x:Key="BrushBorder" Color="#2D2D42" />
+    <SolidColorBrush x:Key="BrushDivider" Color="#2D2D42" />
+
+    <!-- 文字 -->
+    <SolidColorBrush x:Key="BrushText" Color="#E8E8EE" />
+    <SolidColorBrush x:Key="BrushTextSecondary" Color="#9899AC" />
+    <SolidColorBrush x:Key="BrushTextMuted" Color="#6B6C82" />
+
+    <!-- 气泡 -->
+    <SolidColorBrush x:Key="BrushBubbleUser" Color="#2C2D46" />
+    <SolidColorBrush x:Key="BrushBubbleAssistant" Color="#1E1F34" />
+
+    <!-- 交互 -->
+    <SolidColorBrush x:Key="BrushAccent" Color="#60A5FA" />
+    <SolidColorBrush x:Key="BrushHover" Color="#25263E" />
+    <SolidColorBrush x:Key="BrushDanger" Color="#EF4444" />
+
+    <!-- 输入区 -->
+    <SolidColorBrush x:Key="BrushInputBg" Color="#151526" />
+    <SolidColorBrush x:Key="BrushInputBorder" Color="#2D2D42" />
+
+    <!-- 表格斑马纹交替色 -->
+    <SolidColorBrush x:Key="BrushRowAlt" Color="#1B1B30" />
+
+    <!-- Token 使用率指示色 -->
+    <SolidColorBrush x:Key="BrushTokenGreen" Color="#22C55E" />
+    <SolidColorBrush x:Key="BrushTokenOrange" Color="#F59E0B" />
+    <SolidColorBrush x:Key="BrushTokenRed" Color="#EF4444" />
+
+</ResourceDictionary>

@@ -1,0 +1,591 @@
+﻿<UserControl x:Class="Hearthaven.Controls.ChatAreaControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:Hearthaven.Controls"
+             xmlns:vm="clr-namespace:Hearthaven.Models"
+             mc:Ignorable="d"
+             Background="{DynamicResource BrushChatBg}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ===== 顶部标题栏 ===== -->
+        <Border Grid.Row="0"
+                BorderBrush="{DynamicResource BrushDivider}"
+                BorderThickness="0,0,0,1"
+                Padding="20,14"
+                Background="{DynamicResource BrushBg}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />  <!-- 📂 工作目录 -->
+                    <ColumnDefinition Width="Auto" />  <!-- 🗑 清空 -->
+                    <ColumnDefinition Width="Auto" />  <!-- 📜 提示词 -->
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="SessionTitleText"
+                           Text="{Binding CurrentTitle}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource BrushTextSecondary}"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center" />
+
+                <!-- 📂 工作目录（点击打开资源管理器） -->
+                <Button Grid.Column="1"
+                        ToolTip="{Binding WorkingDirFullPath}"
+                        Command="{Binding OpenWorkingDirCommand}"
+                        Cursor="Hand"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="8,4"
+                        Margin="0,0,4,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📂 " FontSize="12" />
+                        <TextBlock Text="{Binding WorkingDirDisplayName}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource BrushTextMuted}" />
+                    </StackPanel>
+                </Button>
+
+                <!-- 🗑 清空对话 -->
+                <Button Grid.Column="2"
+                        Content="🗑 清空"
+                        FontSize="12"
+                        Padding="8,4"
+                        Margin="0,0,4,0"
+                        Foreground="{DynamicResource BrushTextMuted}"
+                        ToolTip="清空对话"
+                        Command="{Binding ClearChatCommand}"
+                        IsEnabled="{Binding IsGenerating, Converter={StaticResource InverseBoolConverter}}" Cursor="Hand" />
+
+                <!-- 📜 提示词 -->
+                <Button Grid.Column="3"
+                        Content="📜 提示词"
+                        FontSize="12"
+                        Padding="8,4"
+                        Foreground="{DynamicResource BrushTextMuted}"
+                        Command="{Binding ShowSystemPromptCommand}" />
+            </Grid>
+        </Border>
+
+        <!-- ===== 消息区域（空状态 + 消息列表） ===== -->
+        <Grid Grid.Row="1">
+            <!-- 空状态引导页（无消息时显示） -->
+            <Border Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource BrushChatBg}"
+                    Padding="40">
+                <StackPanel VerticalAlignment="Center"
+                            HorizontalAlignment="Center"
+                            MaxWidth="400">
+                    <Image Source="/Assets/Images/Logo.png"
+                           Width="72" Height="72"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,12" />
+                    <TextBlock Text="炉心 Hearthaven"
+                               FontSize="28"
+                               FontWeight="Light"
+                               Foreground="{DynamicResource BrushTextSecondary}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,12" />
+
+                    <TextBlock Text="输入消息开始和 AI 对话"
+                               FontSize="15"
+                               Foreground="{DynamicResource BrushTextMuted}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,32" />
+
+                    <!-- 示例提示 -->
+                    <Border Background="{DynamicResource BrushHover}"
+                            CornerRadius="10"
+                            Padding="20,16">
+                        <StackPanel>
+                            <TextBlock Text="💬 试试对我说："
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextSecondary}"
+                                       Margin="0,0,0,10" />
+                            <TextBlock Text="• &quot;列出当前目录的文件&quot;"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource BrushTextMuted}"
+                                       Margin="20,0,0,6" />
+                            <TextBlock Text="• &quot;帮我搜索项目中的 TODO&quot;"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource BrushTextMuted}"
+                                       Margin="20,0,0,6" />
+                            <TextBlock Text="• &quot;计算 1024 × 768 ÷ 2&quot;"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource BrushTextMuted}"
+                                       Margin="20,0,0,6" />
+                            <TextBlock Text="• &quot;帮我把这个文件改个名&quot;"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource BrushTextMuted}"
+                                       Margin="20,0,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 提示信息 -->
+                    <StackPanel Margin="0,20,0,0">
+                        <TextBlock Text="⌨️ Enter 发送 · Shift+Enter 换行"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource BrushTextMuted}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 消息列表（有消息时显示） -->
+            <ScrollViewer x:Name="MessageScrollViewer"
+                          Visibility="{Binding ShowEmptyState, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                          CanContentScroll="True"
+                          VerticalScrollBarVisibility="Auto"
+                          Background="{DynamicResource BrushChatBg}"
+                          ScrollChanged="OnScrollChanged">
+                <ItemsControl x:Name="MessageList"
+                              ItemsSource="{Binding Messages}"
+                              VirtualizingStackPanel.IsVirtualizing="True"
+                              VirtualizingStackPanel.VirtualizationMode="Recycling">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel VirtualizationMode="Recycling" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="20,8"
+                                    MaxWidth="{Binding ElementName=MessageScrollViewer, Path=ActualWidth, Converter={StaticResource PercentageConverter}, ConverterParameter=0.8}"
+                                    HorizontalAlignment="{Binding Role, Converter={StaticResource RoleToAlignConverter}}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <!-- 默认：助手消息 → 无气泡，纯文本流 -->
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="CornerRadius" Value="0" />
+                                        <Setter Property="Effect" Value="{x:Null}" />
+                                        <Style.Triggers>
+                                            <!-- 用户消息 → 气泡样式：背景色 + 圆角，无阴影（避免 Effect 导致文字模糊） -->
+                                            <DataTrigger Binding="{Binding Role}" Value="user">
+                                                <Setter Property="Background" Value="{DynamicResource BrushBubbleUser}" />
+                                                <Setter Property="Padding" Value="14,10" />
+                                                <Setter Property="CornerRadius" Value="12" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <!-- 时间线条目：轮次块（思考+工具+文本） -->
+                                    <ItemsControl ItemsSource="{Binding TimelineItems}">
+                                        <ItemsControl.Style>
+                                            <Style TargetType="ItemsControl">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="HasItems" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ItemsControl.Style>
+                                    </ItemsControl>
+
+                                    <!-- 后备内容：没有 TimelineItems 时（如用户消息）直接显示 -->
+                                    <StackPanel>
+                                        <StackPanel.Style>
+                                            <Style TargetType="StackPanel">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding TimelineItems.Count}" Value="0">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                        <!-- [A6] 编辑模式 -->
+                                        <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBox Text="{Binding EditingContent, UpdateSourceTrigger=PropertyChanged}"
+                                                     AcceptsReturn="True"
+                                                     TextWrapping="Wrap"
+                                                     MinHeight="60"
+                                                     FontSize="14"
+                                                     FontFamily="{StaticResource FontFamily}"
+                                                     Foreground="{DynamicResource BrushText}"
+                                                     Background="{DynamicResource BrushBg}"
+                                                     BorderBrush="{DynamicResource BrushAccent}"
+                                                     BorderThickness="1"
+                                                     Padding="8"
+                                                     KeyDown="EditingBox_KeyDown" />
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
+                                                <Button Content="💾 保存"
+                                                        FontSize="12"
+                                                        Padding="8,2"
+                                                        Margin="0,0,4,0"
+                                                        Cursor="Hand"
+                                                        Background="{DynamicResource BrushAccent}"
+                                                        Foreground="White"
+                                                        BorderThickness="0"
+                                                        Command="{Binding SaveEditCommand}" />
+                                                <Button Content="取消"
+                                                        FontSize="12"
+                                                        Padding="8,2"
+                                                        Cursor="Hand"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Foreground="{DynamicResource BrushTextMuted}"
+                                                        Command="{Binding CancelEditCommand}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <!-- 查看模式 -->
+                                        <StackPanel Visibility="{Binding IsEditing, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            <controls:MarkdownViewer Markdown="{Binding Content}"
+                                                                     Visibility="{Binding IsStreaming, Converter={StaticResource InverseBoolToVisibilityConverter}}" />
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- 底部操作栏：时间 + 操作按钮 -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                        <TextBlock Text="{Binding Timestamp, StringFormat={}{0:yyyy-MM-dd HH:mm}}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource BrushTextMuted}"
+                                                   VerticalAlignment="Center" />
+
+                                        <!-- [A6] 编辑按钮（仅用户消息可见） -->
+                                        <Button FontSize="12"
+                                                Margin="12,0,0,0"
+                                                Padding="6,2"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTip="编辑消息"
+                                                Command="{Binding StartEditCommand}"
+                                                Visibility="{Binding Role, Converter={StaticResource RoleToEditVisibilityConverter}}">
+                                            <TextBlock Text="✏️ 编辑"
+                                                       Foreground="{DynamicResource BrushTextMuted}" />
+                                        </Button>
+
+                                        <Button FontSize="12"
+                                                Margin="4,0,0,0"
+                                                Padding="6,2"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTip="复制内容"
+                                                Command="{Binding CopyCommand}">
+                                            <TextBlock Text="{Binding CopyButtonText}"
+                                                       Foreground="{DynamicResource BrushTextMuted}" />
+                                        </Button>
+
+                                        <!-- [A5] 重新生成按钮（仅助手消息可见） -->
+                                        <Button FontSize="12"
+                                                Margin="4,0,0,0"
+                                                Padding="6,2"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTip="重新生成回复"
+                                                Command="{Binding RegenerateCommand}"
+                                                Visibility="{Binding CanRegenerate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="🔄 重新生成"
+                                                       Foreground="{DynamicResource BrushTextMuted}" />
+                                        </Button>
+
+                                        <!-- [A7] 重试按钮（仅错误消息可见） -->
+                                        <Button FontSize="12"
+                                                Margin="4,0,0,0"
+                                                Padding="6,2"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTip="重试"
+                                                Command="{Binding RetryCommand}"
+                                                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="🔄 重试"
+                                                       Foreground="{DynamicResource BrushAccent}" />
+                                        </Button>
+
+                                        <Button FontSize="12"
+                                                Margin="4,0,0,0"
+                                                Padding="6,2"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                ToolTip="删除此轮对话"
+                                                Command="{Binding DataContext.DeleteMessageGroupCommand, Source={x:Reference MessageList}}"
+                                                CommandParameter="{Binding GroupId}">
+                                            <TextBlock Text="🗑️ 删除">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushTextMuted}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Button}}" Value="True">
+                                                                <Setter Property="Foreground" Value="{DynamicResource BrushDanger}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Button>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- ===== 底部输入区（Phase 5 工具栏布局） ===== -->
+        <Border Grid.Row="2"
+                BorderBrush="{DynamicResource BrushDivider}"
+                BorderThickness="0,1,0,0"
+                Padding="20,12,20,16"
+                Background="{DynamicResource BrushBg}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- 状态栏（不变） -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="StatusText"
+                               Text="{Binding StatusMessage}"
+                               Foreground="{DynamicResource BrushTextMuted}"
+                               FontSize="11" />
+
+                    <!-- Token 进度指示 -->
+                    <Border Margin="12,0,0,0" Padding="6,2,6,2"
+                            CornerRadius="3"
+                            Background="{DynamicResource BrushHover}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ProgressBar Value="{Binding TokenUsageRatio}"
+                                         Maximum="1"
+                                         Width="50" Height="5"
+                                         Foreground="{Binding UsageBarBrush}"
+                                         Background="#E0E0E0"
+                                         BorderThickness="0"
+                                         VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding TokenDisplayText}"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource BrushTextMuted}"
+                                       Margin="5,0,0,0"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 上下文告警 -->
+                    <TextBlock Text="{Binding ContextWarningText}"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{Binding ContextWarningBrush}"
+                               Margin="12,0,0,0"
+                               VerticalAlignment="Center"
+                               Visibility="{Binding HasContextWarning, Converter={StaticResource BoolToVisibilityConverter}}" />
+                </StackPanel>
+
+                <!-- 统一输入区（输入框 + 工具栏） -->
+                <Border Grid.Row="2"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        BorderBrush="{DynamicResource BrushDivider}"
+                        Padding="12,8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />  <!-- 输入框 -->
+                            <RowDefinition Height="8" />
+                            <RowDefinition Height="Auto" />  <!-- 工具栏 -->
+                        </Grid.RowDefinitions>
+
+                        <!-- 输入框（无独立边框） -->
+                        <TextBox Grid.Row="0"
+                                 x:Name="InputBox"
+                                 Text="{Binding CurrentInput, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto"
+                                 MaxHeight="100"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 KeyDown="InputBox_KeyDown" />
+
+                        <!-- 工具栏（Phase 5） -->
+                        <Grid Grid.Row="2" Margin="0,4,0,0">
+                            <Grid.Resources>
+                                <Style x:Key="ToolButtonStyle" TargetType="Button">
+                                    <Setter Property="Padding" Value="6,3" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4"
+                                                        Padding="{TemplateBinding Padding}"
+                                                        BorderThickness="0">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource BrushHover}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                                <Style x:Key="ToolRadioStyle" TargetType="RadioButton">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="Padding" Value="6,3" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="RadioButton">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4"
+                                                        Padding="{TemplateBinding Padding}"
+                                                        BorderThickness="1"
+                                                        BorderBrush="Transparent">
+                                                    <ContentPresenter />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushAccent}" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource BrushAccent}" />
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource BrushHover}" />
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                                <Style x:Key="ActionButtonStyle" TargetType="Button">
+                                    <Setter Property="Width" Value="30" />
+                                    <Setter Property="Height" Value="28" />
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="Padding" Value="4,2" />
+                                    <Setter Property="Cursor" Value="Hand" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="4"
+                                                        Padding="{TemplateBinding Padding}"
+                                                        BorderThickness="0">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                      VerticalAlignment="Center" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush Color="#40000000" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                                <Style x:Key="ToolComboBoxStyle" TargetType="ComboBox">
+                                    <Setter Property="Width" Value="150" />
+                                    <Setter Property="Height" Value="28" />
+                                    <Setter Property="FontSize" Value="13" />
+                                    <Setter Property="VerticalAlignment" Value="Center" />
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="Foreground" Value="{DynamicResource BrushText}" />
+                                    <Setter Property="BorderThickness" Value="0" />
+                                </Style>
+                            </Grid.Resources>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />  <!-- 📂 目录 -->
+                                <ColumnDefinition Width="Auto" />  <!-- 🎯 模式 -->
+                                <ColumnDefinition Width="*" />      <!-- 弹性 -->
+                                <ColumnDefinition Width="Auto" />  <!-- 🤖 模型 -->
+                                <ColumnDefinition Width="Auto" />  <!-- ⏹ 停止 -->
+                                <ColumnDefinition Width="Auto" />  <!-- 🚀 发送 -->
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 📂 工作目录（点击切换） -->
+                            <Button Grid.Column="0"
+                                    Style="{StaticResource ToolButtonStyle}"
+                                    ToolTip="{Binding WorkingDirFullPath}"
+                                    Command="{Binding SwitchWorkingDirCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="📂 " FontSize="13" />
+                                    <TextBlock Text="{Binding WorkingDirDisplayName}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource BrushTextSecondary}" />
+                                </StackPanel>
+                            </Button>
+
+                            
+                            <!-- 🎯 对话模式 -->
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Margin="0,0,0,0">
+                                <RadioButton Content="💬聊天"
+                                             ToolTip="聊天模式（仅对话）"
+                                             IsChecked="{Binding IsModeChat}"
+                                             GroupName="ModeGroup"
+                                             Style="{StaticResource ToolRadioStyle}" />
+                                <RadioButton Content="⚙️工作"
+                                             ToolTip="工作模式（工具+规则）"
+                                             IsChecked="{Binding IsModeFull}"
+                                             GroupName="ModeGroup"
+                                             Style="{StaticResource ToolRadioStyle}"
+                                             Margin="2,0,0,0" />
+                            </StackPanel>
+
+
+                            <!-- 弹性间隔 -->
+                            <Grid Grid.Column="2" />
+
+                            <!-- 🤖 模型 -->
+                            <ComboBox Grid.Column="3" ItemsSource="{Binding AvailableModels}" 
+                                      SelectedItem="{Binding SelectedModel}"
+                                      DisplayMemberPath="Name"
+                                      Margin="4,0,10,0"
+                                      Style="{StaticResource ToolComboBoxStyle}" />
+
+                            <!-- ⏹ 停止 -->
+                            <Button Grid.Column="4"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Content="⏹"
+                                    Margin="4,0,0,0"
+                                    ToolTip="停止生成"
+                                    Background="{DynamicResource BrushHover}"
+                                    Foreground="{DynamicResource BrushDanger}"
+                                    Command="{Binding StopCommand}"
+                                    IsEnabled="{Binding IsGenerating}"
+                                    Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                            <!-- 🚀 发送 -->
+                            <Button Grid.Column="5"
+                                    x:Name="SendButton"
+                                    Style="{StaticResource ActionButtonStyle}"
+                                    Content="🚀"
+                                    Margin="2,0,0,0"
+                                    ToolTip="发送"
+                                    Background="{DynamicResource BrushAccent}"
+                                    Foreground="White"
+                                    IsEnabled="{Binding CanSendEnabled}"
+                                    Click="SendButton_Click" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,126 @@
+<Window x:Class="Hearthaven.Views.ModelEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="编辑模型" Width="460" Height="400"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="{StaticResource FontFamily}"
+        FontSize="13"
+        Background="{DynamicResource BrushBg}"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="FieldLabel">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushTextSecondary}"/>
+            <Setter Property="Margin" Value="0,10,0,3"/>
+        </Style>
+        <Style TargetType="TextBox" x:Key="FieldInput">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushBorder}"/>
+            <Setter Property="Background" Value="{DynamicResource BrushBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushText}"/>
+        </Style>
+        <Style TargetType="ComboBox" x:Key="FieldComboBox">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushBorder}"/>
+            <Setter Property="Background" Value="{DynamicResource BrushBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushText}"/>
+        </Style>
+        <Style TargetType="PasswordBox" x:Key="FieldPassword">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushBorder}"/>
+            <Setter Property="Background" Value="{DynamicResource BrushBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushText}"/>
+        </Style>
+        <Style TargetType="Button" x:Key="DialogButton">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="20,8"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <!-- 底部按钮 -->
+        <Border DockPanel.Dock="Bottom"
+                BorderBrush="{DynamicResource BrushDivider}"
+                BorderThickness="0,1,0,0"
+                Padding="16,12"
+                Background="{DynamicResource BrushBg}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="确定"
+                        Style="{StaticResource DialogButton}"
+                        Background="{DynamicResource BrushAccent}"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Click="OnConfirm" />
+                <Button Content="取消"
+                        Style="{StaticResource DialogButton}"
+                        Background="Transparent"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource BrushBorder}"
+                        Foreground="{DynamicResource BrushTextMuted}"
+                        Click="OnCancel" />
+            </StackPanel>
+        </Border>
+
+        <!-- 表单内容 -->
+        <ScrollViewer Margin="16,12,16,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- 显示名称 -->
+                <TextBlock Text="显示名称" Style="{StaticResource FieldLabel}" />
+                <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FieldInput}" />
+
+                <!-- 服务商类型 -->
+                <TextBlock Text="服务商类型" Style="{StaticResource FieldLabel}" />
+                <ComboBox SelectedItem="{Binding Provider}"
+                          Style="{StaticResource FieldComboBox}"
+                          IsEditable="False">
+                    <ComboBoxItem Content="OpenAI Compatible" IsSelected="True" />
+                    <ComboBoxItem Content="Azure" />
+                </ComboBox>
+
+                <!-- API 地址 -->
+                <TextBlock Text="API 地址" Style="{StaticResource FieldLabel}" />
+                <TextBox Text="{Binding Endpoint, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FieldInput}" />
+
+                <!-- API Key -->
+                <TextBlock Text="API Key" Style="{StaticResource FieldLabel}" />
+                <PasswordBox x:Name="ApiKeyBox"
+                             Style="{StaticResource FieldPassword}"
+                             PasswordChanged="OnApiKeyChanged" />
+
+                <!-- 模型 ID -->
+                <TextBlock Text="模型 ID" Style="{StaticResource FieldLabel}" />
+                <TextBox Text="{Binding ModelId, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FieldInput}" />
+                <TextBlock Text="API 调用时使用的模型名称，如 deepseek-v4-flash、gpt-4o"
+                           FontSize="11"
+                           Foreground="{DynamicResource BrushTextMuted}"
+                           Margin="0,2,0,0" />
+
+                <!-- 最大上下文 Token -->
+                <TextBlock Text="最大上下文 Token（可选）" Style="{StaticResource FieldLabel}" />
+                <TextBox Text="{Binding MaxContextTokens, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                         Style="{StaticResource FieldInput}" />
+
+                <!-- 最大输出 Token -->
+                <TextBlock Text="最大输出 Token（可选）" Style="{StaticResource FieldLabel}" />
+                <TextBox Text="{Binding MaxTokens, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}"
+                         Style="{StaticResource FieldInput}" />
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

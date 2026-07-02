@@ -1,0 +1,50 @@
+﻿# ─────────── .NET ───────────
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+*.DotSettings.user
+*.csproj.user
+*_wpftmp.*
+
+
+# ─────────── VS / IDE ───────────
+.vs/
+*.VC.db
+*.VC.opendb
+Debug/
+Release/
+x64/
+x86/
+
+# ─────────── 安全：API Key 等敏感配置 ───────────
+appsettings.json
+
+# ─────────── SQLite 数据库 ───────────
+*.db
+*.db-shm
+*.db-wal
+
+# ─────────── 日志 ───────────
+*.log
+logs/
+
+# ─────────── 操作系统 ───────────
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# ─────────── 系统提示词导出 ───────────
+*系统提示词*.md
+
+.tidemate
+
+# ─────────── 开发文档（爸爸经常手动修改，不纳入版本控制） ───────────
+BUG.md
+TODO.md
+PLAN.md
+CLAUDE.md
+文档/
+
+

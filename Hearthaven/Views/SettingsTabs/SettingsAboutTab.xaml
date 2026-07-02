@@ -1,0 +1,62 @@
+<UserControl x:Class="Hearthaven.Views.SettingsTabs.SettingsAboutTab"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    <Border Style="{StaticResource CardBorder}"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Padding="40,32">
+        <StackPanel>
+            <!-- Logo -->
+            <Border Width="56" Height="56"
+                    CornerRadius="16"
+                    Background="{DynamicResource BrushHover}"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,14">
+                <Image Source="/Assets/Images/Logo.png"
+                       Width="32" Height="32"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center" />
+            </Border>
+
+            <!-- 应用名 -->
+            <TextBlock Text="炉心 Hearthaven"
+                       FontSize="24"
+                       FontWeight="Light"
+                       Foreground="{DynamicResource BrushText}"
+                       HorizontalAlignment="Center" />
+
+            <!-- 版本 -->
+            <TextBlock Text="{Binding AppVersion, StringFormat={}版本 {0}}"
+                       FontSize="12"
+                       Foreground="{DynamicResource BrushTextMuted}"
+                       HorizontalAlignment="Center"
+                       Margin="0,6,0,4" />
+
+            <!-- 技术栈 -->
+            <TextBlock Text="基于 WPF .NET 9 构建"
+                       FontSize="11"
+                       Foreground="{DynamicResource BrushTextMuted}"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,28" />
+
+            <!-- 分隔线 -->
+            <Border Height="1"
+                    Background="{DynamicResource BrushDivider}"
+                    Margin="20,0,20,20" />
+
+            <!-- 调试日志 -->
+            <CheckBox Content="启用调试日志"
+                      IsChecked="{Binding EnableDebugLog}"
+                      Style="{StaticResource ConfigCheckBox}"
+                      HorizontalAlignment="Center" />
+            <TextBlock Text="日志将写入程序目录下的 debug_log.txt"
+                       FontSize="11"
+                       Foreground="{DynamicResource BrushTextMuted}"
+                       HorizontalAlignment="Center"
+                       Margin="0,4,0,0" />
+        </StackPanel>
+    </Border>
+</UserControl>

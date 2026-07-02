@@ -1,0 +1,13 @@
+# Auto detect text files and use CRLF on checkout (Windows standard)
+* text=auto
+
+# Binary files — never touch
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary
+*.exe binary
+*.dll binary
+*.db binary

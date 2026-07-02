@@ -1,0 +1,44 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════ 暖米柔白主题：配色调色板 ═══════════════ -->
+    <!--
+        设计规范：E:\CSHAP\Hearthaven\文档\配色.md
+        品牌主色 #F28C38 → 暖橙色，所有交互高亮以此为标志
+        页面主背景 #F8F5F0 → 暖米白，区别于极简蓝白的冷白调
+    -->
+
+    <!-- 背景 -->
+    <SolidColorBrush x:Key="BrushBg" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="BrushSidebar" Color="#F8F5F0" />
+    <SolidColorBrush x:Key="BrushChatBg" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="BrushBorder" Color="#E7E5E4" />
+    <SolidColorBrush x:Key="BrushDivider" Color="#E7E5E4" />
+
+    <!-- 文字 -->
+    <SolidColorBrush x:Key="BrushText" Color="#2C2C2C" />
+    <SolidColorBrush x:Key="BrushTextSecondary" Color="#78716C" />
+    <SolidColorBrush x:Key="BrushTextMuted" Color="#A8A29E" />
+
+    <!-- 气泡 -->
+    <SolidColorBrush x:Key="BrushBubbleUser" Color="#FFF7ED" />
+    <SolidColorBrush x:Key="BrushBubbleAssistant" Color="#FFFFFF" />
+
+    <!-- 交互 -->
+    <SolidColorBrush x:Key="BrushAccent" Color="#F28C38" />
+    <SolidColorBrush x:Key="BrushHover" Color="#F8F5F0" />
+    <SolidColorBrush x:Key="BrushDanger" Color="#EF4444" />
+
+    <!-- 输入区 -->
+    <SolidColorBrush x:Key="BrushInputBg" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="BrushInputBorder" Color="#E7E5E4" />
+
+    <!-- 表格斑马纹交替色 -->
+    <SolidColorBrush x:Key="BrushRowAlt" Color="#FBF9F7" />
+
+    <!-- Token 使用率指示色 -->
+    <SolidColorBrush x:Key="BrushTokenGreen" Color="#10B981" />
+    <SolidColorBrush x:Key="BrushTokenOrange" Color="#FF9800" />
+    <SolidColorBrush x:Key="BrushTokenRed" Color="#EF4444" />
+
+</ResourceDictionary>
